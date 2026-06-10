@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskify - Glass Theme</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1458682625221-3a45f8a844c7?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            transform: translateZ(0); 
+            will-change: transform;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+        }
+
+        .glass-menu {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: rgba(59, 130, 246, 0.5);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .task-card {
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            will-change: transform;
+        }
+        
+        .task-card:hover {
+            transform: translateY(-2px) translateZ(0); 
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        .dropdown-menu {
+            animation: menuPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateZ(0);
+        }
+        
+        @keyframes menuPop {
+            from { opacity: 0; transform: scale(0.9) translateY(-15px) translateZ(0); }
+            to { opacity: 1; transform: scale(1) translateY(0) translateZ(0); }
+        }
+    </style>
+</head>
+<body class="text-zinc-900 min-h-screen">
+
+    <header class="glass-menu rounded-3xl mt-2 mx-4 h-16 px-4 flex items-center justify-between sticky top-2 z-50 overflow-hidden">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleDropdown()" class="p-3 text-zinc-700 hover:bg-white/50 rounded-3xl transition-colors">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-600 rounded-3xl flex items-center justify-center text-white font-bold text-xl">T</div>
+                <span class="font-semibold text-2xl tracking-tight">Taskify</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <div class="text-sm font-medium">FBI</div>
+                    <div class="text-xs text-zinc-500">Agent</div>
+                </div>
+                <div class="w-8 h-8 bg-zinc-800 text-white rounded-3xl flex items-center justify-center font-medium text-sm">FBI</div>
+            </div>
+        </div>
+    </header>
+
+    <div id="dropdownMenu" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center">
+        <div onclick="event.stopImmediatePropagation()" class="dropdown-menu glass-menu rounded-3xl w-full max-w-xs mx-4 overflow-hidden">
+            <div class="px-5 pt-5 pb-3 border-b border-white/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-3xl flex items-center justify-center text-white font-bold text-xl">T</div>
+                    <span class="font-semibold text-xl tracking-tight">Taskify</span>
+                </div>
+                <button onclick="toggleDropdown()" class="text-zinc-500 hover:text-zinc-800">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="p-2">
+                <button onclick="showAddModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3.5 px-5 rounded-3xl flex items-center justify-center gap-2 mb-4 transition-colors">
+                    <i class="fa-solid fa-plus"></i> New Task
+                </button>
+
+                <div class="space-y-1 px-1">
+                    <div onclick="selectFilter('all')" class="flex items-center gap-3 px-5 py-3.5 rounded-3xl cursor-pointer hover:bg-white/60 transition-colors">
+                        <i class="fa-solid fa-inbox w-5"></i><span class="font-medium">All Tasks</span>
+                    </div>
+                    <div onclick="selectFilter('active')" class="flex items-center gap-3 px-5 py-3.5 rounded-3xl cursor-pointer hover:bg-white/60 transition-colors">
+                        <i class="fa-solid fa-clock w-5"></i><span class="font-medium">Active</span>
+                    </div>
+                    <div onclick="selectFilter('completed')" class="flex items-center gap-3 px-5 py-3.5 rounded-3xl cursor-pointer hover:bg-white/60 transition-colors">
+                        <i class="fa-solid fa-check-circle w-5"></i><span class="font-medium">Completed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 p-4 overflow-auto">
+        <div class="max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                <div class="glass-panel rounded-3xl p-5">
+                    <div class="text-xs text-zinc-600 font-semibold uppercase">Total</div>
+                    <div id="totalTasks" class="text-3xl font-semibold mt-1"></div>
+                </div>
+                <div class="glass-panel rounded-3xl p-5">
+                    <div class="text-xs text-zinc-600 font-semibold uppercase">Completed</div>
+                    <div id="completedTasks" class="text-3xl font-semibold mt-1 text-emerald-700"></div>
+                </div>
+                <div class="glass-panel rounded-3xl p-5">
+                    <div class="text-xs text-zinc-600 font-semibold uppercase">Pending</div>
+                    <div id="pendingTasks" class="text-3xl font-semibold mt-1 text-blue-700"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 glass-panel p-4 rounded-3xl">
+                <h1 id="viewTitle" class="text-2xl font-semibold px-2">All Tasks</h1>
+                <select id="priorityFilter" onchange="filterTasks()" class="glass-input rounded-3xl px-5 py-2 text-sm w-full sm:w-auto font-medium cursor-pointer">
+                    <option value="">All Priorities</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+
+            <div id="taskList" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <div id="taskModal" class="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm hidden flex items-center justify-center z-[110] p-4">
+        <div class="glass-menu rounded-3xl w-full max-w-md shadow-2xl">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="modalTitle" class="text-2xl font-semibold">New Task</h2>
+                    <button onclick="hideModal()" class="text-zinc-500 hover:text-zinc-800">
+                        <i class="fa-solid fa-xmark text-2xl"></i>
+                    </button>
+                </div>
+
+                <form id="taskForm" onsubmit="saveTask(event)">
+                    <input type="hidden" id="editId">
+                    <div class="space-y-5">
+                        <div>
+                            <label class="text-sm font-medium text-zinc-800 block mb-1">Title</label>
+                            <input id="taskTitle" type="text" required class="glass-input w-full rounded-3xl px-5 py-3.5 focus:outline-none focus:border-blue-500 text-zinc-900">
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-zinc-800 block mb-1">Description</label>
+                            <textarea id="taskDesc" rows="3" class="glass-input w-full rounded-3xl px-5 py-3.5 focus:outline-none focus:border-blue-500 resize-none text-zinc-900"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-zinc-800 block mb-1">Due Date</label>
+                                <input id="taskDue" type="date" required class="glass-input w-full rounded-3xl px-5 py-3.5 focus:outline-none focus:border-blue-500 text-zinc-900">
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-zinc-800 block mb-1">Priority</label>
+                                <select id="taskPriority" class="glass-input w-full rounded-3xl px-5 py-3.5 focus:outline-none focus:border-blue-500 text-zinc-900">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 mt-8">
+                        <button type="button" onclick="hideModal()" class="flex-1 py-4 glass-input rounded-3xl font-medium hover:bg-white/60">Cancel</button>
+                        <button type="submit" class="flex-1 py-4 bg-blue-600 text-white rounded-3xl font-medium hover:bg-blue-700">Save Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ... (Your existing JavaScript remains exactly the same)
+        console.warn = () => {};
+
+        let tasks = [];
+        let currentFilter = 'all';
+        let currentEditId = null;
+
+        const sampleTasks = [
+            {id: 1001, title: "Finalize Q3 marketing campaign", description: "Prepare slides and assets", due: "2026-06-15", priority: "high", completed: false},
+            {id: 1002, title: "Schedule dentist appointment", description: "", due: "2026-06-20", priority: "medium", completed: true},
+            {id: 1003, title: "Review new logo concepts", description: "Choose between options", due: "2026-06-12", priority: "low", completed: false},
+            {id: 1004, title: "Rehearse opening scene for campus play", description: "Practice with drama club", due: "2026-06-11", priority: "high", completed: false}
+        ];
+
+        function loadTasks() {
+            const saved = JSON.parse(localStorage.getItem('tasks')) || [];
+            sampleTasks.forEach(sample => {
+                if (!saved.find(t => t.id === sample.id)) saved.push(sample);
+            });
+            tasks = saved;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function renderTasks(filteredTasks) {
+            const container = document.getElementById('taskList');
+            container.innerHTML = '';
+            filteredTasks.forEach(task => {
+                const due = new Date(task.due);
+                const isOverdue = due < new Date() && !task.completed;
+                container.innerHTML += `
+                    <div class="task-card glass-panel rounded-3xl p-5 flex items-start gap-4 group">
+                        <button onclick="toggleComplete(${task.id}); event.stopImmediatePropagation()" class="mt-1 w-6 h-6 rounded-2xl border-2 flex items-center justify-center flex-shrink-0 transition-colors ${task.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white/60 border-zinc-400 hover:border-blue-500 text-transparent'}">
+                            ${task.completed ? '✓' : ''}
+                        </button>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <h3 onclick="editTask(${task.id})" class="font-medium text-base cursor-pointer pr-4 ${task.completed ? 'line-through text-zinc-500' : 'text-zinc-900'}">
+                                    ${task.title}
+                                </h3>
+                                <span class="text-xs px-4 py-1 rounded-3xl font-semibold whitespace-nowrap bg-white/70 backdrop-blur-sm border border-white/60 shadow-sm ${task.priority === 'high' ? 'text-red-700' : task.priority === 'medium' ? 'text-amber-700' : 'text-blue-700'}">
+                                    ${task.priority}
+                                </span>
+                            </div>
+                            ${task.description ? `<p class="text-zinc-700 text-sm mt-1.5 line-clamp-2">${task.description}</p>` : ''}
+                            <div class="flex items-center gap-4 mt-4 text-sm font-medium">
+                                <div class="flex items-center gap-1.5 ${isOverdue ? 'text-red-600' : 'text-zinc-700'}">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                    <span>${due.toLocaleDateString('en-US', {month:'short', day:'numeric'})}</span>
+                                </div>
+                                <span class="text-xs uppercase tracking-widest ${task.completed ? 'text-emerald-700' : 'text-blue-700'}">
+                                    ${task.completed ? '✓ Done' : 'Active'}
+                                </span>
+                            </div>
+                        </div>
+                        <button onclick="deleteTask(${task.id}); event.stopImmediatePropagation()" class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 text-zinc-500 hover:text-red-600 p-2 transition-opacity bg-white/40 hover:bg-white/80 rounded-xl">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('pendingTasks').textContent = total - completed;
+        }
+
+        function saveTask(e) {
+            e.preventDefault();
+            const title = document.getElementById('taskTitle').value.trim();
+            const desc = document.getElementById('taskDesc').value.trim();
+            const due = document.getElementById('taskDue').value;
+            const priority = document.getElementById('taskPriority').value;
+            if (!title || !due) return;
+            if (currentEditId) {
+                const task = tasks.find(t => t.id === currentEditId);
+                if (task) { task.title = title; task.description = desc; task.due = due; task.priority = priority; }
+            } else {
+                tasks.push({ id: Date.now(), title, description: desc, due, priority, completed: false });
+            }
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            hideModal();
+            renderTasks(getFilteredTasks());
+        }
+
+        function toggleComplete(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) task.completed = !task.completed;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks(getFilteredTasks());
+        }
+
+        function deleteTask(id) {
+            if (confirm("Delete this task?")) {
+                tasks = tasks.filter(t => t.id !== id);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                renderTasks(getFilteredTasks());
+            }
+        }
+
+        function editTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            currentEditId = id;
+            document.getElementById('modalTitle').textContent = 'Edit Task';
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDesc').value = task.description || '';
+            document.getElementById('taskDue').value = task.due;
+            document.getElementById('taskPriority').value = task.priority;
+            document.getElementById('taskModal').classList.remove('hidden');
+            document.getElementById('taskModal').classList.add('flex');
+        }
+
+        function showAddModal() {
+            currentEditId = null;
+            document.getElementById('modalTitle').textContent = 'New Task';
+            document.getElementById('taskForm').reset();
+            document.getElementById('taskDue').valueAsDate = new Date();
+            document.getElementById('dropdownMenu').classList.add('hidden');
+            document.getElementById('taskModal').classList.remove('hidden');
+            document.getElementById('taskModal').classList.add('flex');
+        }
+
+        function hideModal() {
+            const modal = document.getElementById('taskModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function getFilteredTasks() {
+            let filtered = tasks.filter(task => {
+                if (currentFilter === 'active') return !task.completed;
+                if (currentFilter === 'completed') return task.completed;
+                return true;
+            });
+            const priority = document.getElementById('priorityFilter').value;
+            if (priority) filtered = filtered.filter(t => t.priority === priority);
+            return filtered.sort((a, b) => {
+                if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                return new Date(a.due) - new Date(b.due);
+            });
+        }
+
+        function filterTasks() { renderTasks(getFilteredTasks()); }
+        function selectFilter(filter) {
+            currentFilter = filter;
+            document.getElementById('dropdownMenu').classList.add('hidden');
+            renderTasks(getFilteredTasks());
+            const titles = { all: 'All Tasks', active: 'Active Tasks', completed: 'Completed Tasks' };
+            document.getElementById('viewTitle').textContent = titles[filter] || 'All Tasks';
+        }
+        function toggleDropdown() { document.getElementById('dropdownMenu').classList.toggle('hidden'); }
+        function initializeApp() { loadTasks(); renderTasks(getFilteredTasks()); }
+        window.onload = initializeApp;
+        document.getElementById('dropdownMenu').addEventListener('click', function(e) { if (e.target.id === 'dropdownMenu') this.classList.add('hidden'); });
+    </script>
+</body>
+</html>
